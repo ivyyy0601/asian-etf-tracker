@@ -1,0 +1,540 @@
+{
+    "description": "A-Share ETFs listed after 2025-01-01 with scale >= 10亿. These represent emerging market trends.",
+    "generated_date": "2026-02-28",
+    "industries": {
+        "bonds_fixed_income": [
+            {
+                "code": "511190",
+                "name": "信用债",
+                "listing_date": "2025-02-05",
+                "scale_billion_cny": 95.7452,
+                "index": "上证基准做市公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551000",
+                "name": "科创债",
+                "listing_date": "2025-07-17",
+                "scale_billion_cny": 90.9999,
+                "index": "上证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "511120",
+                "name": "科创债基",
+                "listing_date": "2025-07-17",
+                "scale_billion_cny": 86.8527,
+                "index": "上证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551300",
+                "name": "科创债摩",
+                "listing_date": "2025-09-24",
+                "scale_billion_cny": 66.5983,
+                "index": "上证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "511150",
+                "name": "科债永赢",
+                "listing_date": "2025-09-24",
+                "scale_billion_cny": 38.6846,
+                "index": "上证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "511160",
+                "name": "国债东财",
+                "listing_date": "2025-01-06",
+                "scale_billion_cny": 26.2581,
+                "index": "中证1-3年国债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "511110",
+                "name": "公司债易",
+                "listing_date": "2025-01-24",
+                "scale_billion_cny": 218.8681,
+                "index": "上证基准做市公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551030",
+                "name": "科创债券",
+                "listing_date": "2025-07-17",
+                "scale_billion_cny": 197.4653,
+                "index": "上证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551520",
+                "name": "科创债汇",
+                "listing_date": "2025-09-24",
+                "scale_billion_cny": 181.4112,
+                "index": "中证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "511070",
+                "name": "沪公司债",
+                "listing_date": "2025-01-22",
+                "scale_billion_cny": 178.7708,
+                "index": "上证基准做市公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551900",
+                "name": "科创债指",
+                "listing_date": "2025-07-17",
+                "scale_billion_cny": 177.3156,
+                "index": "中证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551560",
+                "name": "科创债兴",
+                "listing_date": "2025-09-24",
+                "scale_billion_cny": 166.9892,
+                "index": "中证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551550",
+                "name": "科创AAA",
+                "listing_date": "2025-07-17",
+                "scale_billion_cny": 150.8659,
+                "index": "中证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "511200",
+                "name": "信用债基",
+                "listing_date": "2025-02-07",
+                "scale_billion_cny": 147.4086,
+                "index": "上证基准做市公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551800",
+                "name": "国泰科债",
+                "listing_date": "2025-09-24",
+                "scale_billion_cny": 123.8473,
+                "index": "中证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551500",
+                "name": "科创债易",
+                "listing_date": "2025-07-17",
+                "scale_billion_cny": 115.7754,
+                "index": "中证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551580",
+                "name": "科创债TK",
+                "listing_date": "2025-09-24",
+                "scale_billion_cny": 105.2085,
+                "index": "中证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551060",
+                "name": "科创债沪",
+                "listing_date": "2025-09-24",
+                "scale_billion_cny": 102.8837,
+                "index": "上证AAA科技创新公司债指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "551510",
+                "name": "科债AAA",
+                "listing_date": "2025-09-24",
+                "scale_billion_cny": 101.9613,
+                "index": "中证AAA科技创新公司债指数",
+                "currency": "CNY"
+            }
+        ],
+        "semiconductor": [
+            {
+                "code": "588170",
+                "name": "科创半导",
+                "listing_date": "2025-04-08",
+                "scale_billion_cny": 81.3866,
+                "index": "上证科创板半导体材料设备主题指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "589130",
+                "name": "科创芯易",
+                "listing_date": "2026-01-08",
+                "scale_billion_cny": 22.6703,
+                "index": "上证科创板芯片指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "588710",
+                "name": "科半导体",
+                "listing_date": "2025-06-04",
+                "scale_billion_cny": 17.6422,
+                "index": "上证科创板半导体材料设备主题指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "589190",
+                "name": "科创芯基",
+                "listing_date": "2026-01-27",
+                "scale_billion_cny": 13.1004,
+                "index": "上证科创板芯片指数",
+                "currency": "CNY"
+            }
+        ],
+        "technology_innovations": [
+            {
+                "code": "520980",
+                "name": "港科技30",
+                "listing_date": "2025-07-02",
+                "scale_billion_cny": 56.2689,
+                "index": "恒生港股通中国科技指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "520570",
+                "name": "科技恒指",
+                "listing_date": "2025-11-17",
+                "scale_billion_cny": 28.9486,
+                "index": "恒生科技指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "520920",
+                "name": "恒生科TH",
+                "listing_date": "2025-09-30",
+                "scale_billion_cny": 151.1134,
+                "index": "恒生科技指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "589800",
+                "name": "科创综合",
+                "listing_date": "2025-03-04",
+                "scale_billion_cny": 15.5734,
+                "index": "上证科创板综合指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "589000",
+                "name": "科创综指",
+                "listing_date": "2025-03-05",
+                "scale_billion_cny": 15.1365,
+                "index": "上证科创板综合指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "589680",
+                "name": "科创综Z",
+                "listing_date": "2025-03-05",
+                "scale_billion_cny": 12.0066,
+                "index": "上证科创板综合指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "520840",
+                "name": "港科技",
+                "listing_date": "2025-08-25",
+                "scale_billion_cny": 11.4255,
+                "index": "恒生港股通科技主题指数",
+                "currency": "CNY"
+            }
+        ],
+        "cloud_computing_robotics_ai": [
+            {
+                "code": "588790",
+                "name": "科创智能",
+                "listing_date": "2025-01-09",
+                "scale_billion_cny": 54.9968,
+                "index": "上证科创板人工智能指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "589010",
+                "name": "科创AI指",
+                "listing_date": "2025-04-09",
+                "scale_billion_cny": 26.9418,
+                "index": "上证科创板人工智能指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "588760",
+                "name": "AI科创",
+                "listing_date": "2025-01-23",
+                "scale_billion_cny": 23.6674,
+                "index": "上证科创板人工智能指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "560770",
+                "name": "机器人ZS",
+                "listing_date": "2025-09-01",
+                "scale_billion_cny": 21.9257,
+                "index": "中证机器人指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "588730",
+                "name": "科创AI",
+                "listing_date": "2025-01-24",
+                "scale_billion_cny": 16.8575,
+                "index": "上证科创板人工智能指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "588930",
+                "name": "科创板AI",
+                "listing_date": "2025-01-14",
+                "scale_billion_cny": 16.3593,
+                "index": "上证科创板人工智能指数",
+                "currency": "CNY"
+            }
+        ],
+        "real_estate": [
+            {
+                "code": "508039",
+                "name": "首农REIT",
+                "listing_date": "2025-07-25",
+                "scale_billion_cny": 51.25,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508082",
+                "name": "唯品奥莱",
+                "listing_date": "2025-09-12",
+                "scale_billion_cny": 45.16,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508060",
+                "name": "万国REIT",
+                "listing_date": "2025-08-08",
+                "scale_billion_cny": 36.976,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508091",
+                "name": "凯德商业",
+                "listing_date": "2025-09-29",
+                "scale_billion_cny": 27.56,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508078",
+                "name": "易商仓储",
+                "listing_date": "2025-01-24",
+                "scale_billion_cny": 23.304,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508087",
+                "name": "济南能源",
+                "listing_date": "2025-02-17",
+                "scale_billion_cny": 22.724,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508016",
+                "name": "华电REIT",
+                "listing_date": "2025-08-01",
+                "scale_billion_cny": 22.115,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508050",
+                "name": "中核清能",
+                "listing_date": "2026-02-02",
+                "scale_billion_cny": 19.2,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508085",
+                "name": "恒泰租住",
+                "listing_date": "2025-05-21",
+                "scale_billion_cny": 18.945,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508055",
+                "name": "地产租住",
+                "listing_date": "2025-03-31",
+                "scale_billion_cny": 18.82,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508090",
+                "name": "外运REIT",
+                "listing_date": "2025-07-29",
+                "scale_billion_cny": 17.756,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508084",
+                "name": "九州通R",
+                "listing_date": "2025-02-27",
+                "scale_billion_cny": 17.104,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508092",
+                "name": "金隅智造",
+                "listing_date": "2025-02-26",
+                "scale_billion_cny": 16.556,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508080",
+                "name": "北京亦庄",
+                "listing_date": "2025-06-26",
+                "scale_billion_cny": 15.78,
+                "index": "-",
+                "currency": "CNY"
+            },
+            {
+                "code": "508029",
+                "name": "沈软REIT",
+                "listing_date": "2025-11-06",
+                "scale_billion_cny": 11.22,
+                "index": "-",
+                "currency": "CNY"
+            }
+        ],
+        "satellite_space": [
+            {
+                "code": "563230",
+                "name": "卫星ETF",
+                "listing_date": "2025-09-17",
+                "scale_billion_cny": 49.4196,
+                "index": "中证卫星产业指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "512630",
+                "name": "卫星基金",
+                "listing_date": "2025-10-22",
+                "scale_billion_cny": 17.2434,
+                "index": "中证卫星产业指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "563530",
+                "name": "卫星E",
+                "listing_date": "2025-11-14",
+                "scale_billion_cny": 13.9803,
+                "index": "中证卫星产业指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "563790",
+                "name": "卫星产业",
+                "listing_date": "2026-01-05",
+                "scale_billion_cny": 11.3737,
+                "index": "中证卫星产业指数",
+                "currency": "CNY"
+            }
+        ],
+        "biotech_healthcare": [
+            {
+                "code": "520880",
+                "name": "港创新药",
+                "listing_date": "2025-07-07",
+                "scale_billion_cny": 23.7163,
+                "index": "恒生港股通创新药精选指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "589720",
+                "name": "科创新药",
+                "listing_date": "2025-08-01",
+                "scale_billion_cny": 13.9182,
+                "index": "上证科创板创新药指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "520970",
+                "name": "港股通药",
+                "listing_date": "2025-08-07",
+                "scale_billion_cny": 10.7611,
+                "index": "中证港股通创新药指数",
+                "currency": "CNY"
+            }
+        ],
+        "broad_market": [
+            {
+                "code": "563390",
+                "name": "现金基金",
+                "listing_date": "2025-04-30",
+                "scale_billion_cny": 23.6859,
+                "index": "中证全指自由现金流指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "560570",
+                "name": "A500低波",
+                "listing_date": "2025-09-18",
+                "scale_billion_cny": 15.3575,
+                "index": "中证A500红利低波动指数",
+                "currency": "CNY"
+            },
+            {
+                "code": "520550",
+                "name": "红利恒生",
+                "listing_date": "2025-01-24",
+                "scale_billion_cny": 12.4076,
+                "index": "恒生港股通高股息低波动指数",
+                "currency": "CNY"
+            }
+        ],
+        "esg_clean_energy": [
+            {
+                "code": "515370",
+                "name": "中证光伏",
+                "listing_date": "2025-11-18",
+                "scale_billion_cny": 14.1618,
+                "index": "中证光伏产业指数",
+                "currency": "CNY"
+            }
+        ],
+        "transportation": [
+            {
+                "code": "560710",
+                "name": "船舶ETF",
+                "listing_date": "2026-02-06",
+                "scale_billion_cny": 12.0544,
+                "index": "中证智选船舶产业指数",
+                "currency": "CNY"
+            }
+        ],
+        "internet_communications": [
+            {
+                "code": "588770",
+                "name": "信息科创",
+                "listing_date": "2025-03-24",
+                "scale_billion_cny": 10.183,
+                "index": "上证科创板新一代信息技术指数",
+                "currency": "CNY"
+            }
+        ]
+    }
+}

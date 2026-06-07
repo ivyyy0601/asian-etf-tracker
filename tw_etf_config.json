@@ -1,0 +1,63 @@
+{
+    "settings": {
+        "start_date": "2025-01-01",
+        "end_date": "2026-12-31",
+        "data_root_dir": "data_tw"
+    },
+    "benchmark": {
+        "code": "0050.TW",
+        "name": "Yuanta Taiwan Top 50 (TAIEX proxy)",
+        "market": "tw_index"
+    },
+    "industries": {
+        "technology_innovations": [
+            {
+                "code": "00929.TW",
+                "name": "Fuh Hwa Taiwan Technology Dividend",
+                "currency": "TWD"
+            }
+        ],
+        "semiconductor": [
+            {
+                "code": "00830.TW",
+                "name": "Cathay PHLX Semiconductor",
+                "currency": "TWD"
+            }
+        ],
+        "real_estate": [
+            {
+                "code": "00712.TW",
+                "name": "Fuh Hwa FTSE Mortgage REITs",
+                "currency": "TWD"
+            }
+        ],
+        "internet_communications": [
+            {
+                "code": "00876.TW",
+                "name": "Yuanta Global 5G & NexGen Telecommunications",
+                "currency": "TWD"
+            }
+        ],
+        "esg_clean_energy": [
+            {
+                "code": "00893.TW",
+                "name": "Cathay Global Autonomous and Electric Vehicles",
+                "currency": "TWD"
+            }
+        ],
+        "consumer_e_commerce": [
+            {
+                "code": "00916.TW",
+                "name": "Cathay Global Top 50 Brands",
+                "currency": "TWD"
+            }
+        ],
+        "cloud_computing_robotics_ai": [
+            {
+                "code": "00762.TW",
+                "name": "Yuanta STOXX Global Artificial Intelligence",
+                "currency": "TWD"
+            }
+        ]
+    }
+}

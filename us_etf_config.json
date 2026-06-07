@@ -1,0 +1,91 @@
+{
+    "settings": {
+        "start_date": "2025-01-01",
+        "end_date": "2026-12-31",
+        "data_root_dir": "data_us"
+    },
+    "benchmark": {
+        "code": "SPY",
+        "name": "SPDR S&P 500 ETF",
+        "market": "us_index"
+    },
+    "industries": {
+        "technology_innovations": [
+            {
+                "code": "XLK",
+                "name": "Technology Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "financials": [
+            {
+                "code": "XLF",
+                "name": "Financial Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "biotech_healthcare": [
+            {
+                "code": "XLV",
+                "name": "Health Care Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "consumer_e_commerce": [
+            {
+                "code": "XLY",
+                "name": "Consumer Discretionary Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "consumer_staples": [
+            {
+                "code": "XLP",
+                "name": "Consumer Staples Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "industrials": [
+            {
+                "code": "XLI",
+                "name": "Industrial Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "internet_communications": [
+            {
+                "code": "XLC",
+                "name": "Communication Services Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "energy": [
+            {
+                "code": "XLE",
+                "name": "Energy Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "materials": [
+            {
+                "code": "XLB",
+                "name": "Materials Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "utilities": [
+            {
+                "code": "XLU",
+                "name": "Utilities Select Sector SPDR",
+                "currency": "USD"
+            }
+        ],
+        "real_estate": [
+            {
+                "code": "XLRE",
+                "name": "Real Estate Select Sector SPDR",
+                "currency": "USD"
+            }
+        ]
+    }
+}

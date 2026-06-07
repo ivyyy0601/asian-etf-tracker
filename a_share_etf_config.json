@@ -1,0 +1,98 @@
+{
+    "settings": {
+        "start_date": "2025-01-01",
+        "end_date": "2026-12-31",
+        "data_root_dir": "data_ashare"
+    },
+    "benchmark": {
+        "code": "000300",
+        "name": "CSI 300",
+        "market": "cn_index"
+    },
+    "industries": {
+        "gold_commodities": [
+            {
+                "code": "518880",
+                "name": "黄金ETF",
+                "currency": "CNY"
+            }
+        ],
+        "materials": [
+            {
+                "code": "515220",
+                "name": "煤炭ETF",
+                "currency": "CNY"
+            }
+        ],
+        "real_estate": [
+            {
+                "code": "512200",
+                "name": "地产ETF",
+                "currency": "CNY"
+            }
+        ],
+        "biotech_healthcare": [
+            {
+                "code": "513120",
+                "name": "HK创新药",
+                "currency": "CNY"
+            }
+        ],
+        "technology_innovations": [
+            {
+                "code": "513130",
+                "name": "恒生科技",
+                "currency": "CNY"
+            }
+        ],
+        "internet_communications": [
+            {
+                "code": "513330",
+                "name": "恒生互联",
+                "currency": "CNY"
+            }
+        ],
+        "financials": [
+            {
+                "code": "512880",
+                "name": "证券ETF",
+                "currency": "CNY"
+            }
+        ],
+        "esg_clean_energy": [
+            {
+                "code": "515790",
+                "name": "光伏ETF",
+                "currency": "CNY"
+            }
+        ],
+        "cloud_computing_robotics_ai": [
+            {
+                "code": "562500",
+                "name": "机器人",
+                "currency": "CNY"
+            }
+        ],
+        "semiconductor": [
+            {
+                "code": "588200",
+                "name": "科创芯片",
+                "currency": "CNY"
+            }
+        ],
+        "military_defense": [
+            {
+                "code": "512710",
+                "name": "军工龙头",
+                "currency": "CNY"
+            }
+        ],
+        "consumer_e_commerce": [
+            {
+                "code": "512690",
+                "name": "酒ETF",
+                "currency": "CNY"
+            }
+        ]
+    }
+}

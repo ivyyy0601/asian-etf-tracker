@@ -1,0 +1,84 @@
+{
+  "settings": {
+    "start_date": "2025-01-01",
+    "end_date": "2026-12-31",
+    "data_root_dir": "data_sk"
+  },
+  "benchmark": {
+    "code": "069500.KS",
+    "name": "Samsung KODEX 200 (KOSPI 200)",
+    "market": "sk_index"
+  },
+  "industries": {
+    "biotech_healthcare": [
+      {
+        "code": "261070.KS",
+        "name": "Mirae Asset TIGER KOSDAQ150 Biotech",
+        "currency": "KRW"
+      }
+    ],
+    "cloud_computing_robotics_ai": [
+      {
+        "code": "483320.KS",
+        "name": "KIM ACE Nvidia Value Chain Active",
+        "currency": "KRW"
+      }
+    ],
+    "consumer_e_commerce": [
+      {
+        "code": "266410.KS",
+        "name": "Samsung KODEX Consumer Staples",
+        "currency": "KRW"
+      }
+    ],
+    "esg_clean_energy": [
+      {
+        "code": "305720.KS",
+        "name": "Samsung KODEX Secondary Battery Industry",
+        "currency": "KRW"
+      }
+    ],
+    "internet_communications": [
+      {
+        "code": "133690.KS",
+        "name": "MiraeAsset TIGER Nasdaq 100",
+        "currency": "KRW"
+      }
+    ],
+    "military_defense": [
+      {
+        "code": "449450.KS",
+        "name": "Hanwha ARIRANG K-Defense Industry Fn",
+        "currency": "KRW"
+      }
+    ],
+    "real_estate": [
+      {
+        "code": "329200.KS",
+        "name": "Mirae Asset TIGER Real Estate Infra High Div",
+        "currency": "KRW"
+      }
+    ],
+    "semiconductor": [
+      {
+        "code": "091160.KS",
+        "name": "Samsung KODEX Semicon",
+        "currency": "KRW"
+      }
+    ],
+    "technology_innovations": [
+      {
+        "code": "381170.KS",
+        "name": "MiraeAsset TIGER US Tech Top10 INDXX",
+        "currency": "KRW"
+      }
+    ],
+    "transportation": [
+      {
+        "code": "140710.KS",
+        "name": "Samsung KODEX Transportation",
+        "currency": "KRW"
+      }
+    ]
+  }
+}

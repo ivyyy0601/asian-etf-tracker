@@ -1,0 +1,19 @@
+# ── Data (fetched locally, never committed) ──────────────────────────────────
+data/
+data_ashare/
+data_tw/
+data_sk/
+data_us/
+*.log
+
+# ── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+
+# ── OS / editor ──────────────────────────────────────────────────────────────
+.DS_Store
+.idea/
+.vscode/

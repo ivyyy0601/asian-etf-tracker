@@ -1,0 +1,84 @@
+{
+    "settings": {
+        "start_date": "2025-01-01",
+        "end_date": "2026-12-31",
+        "data_root_dir": "data"
+    },
+    "benchmark": {
+        "code": "HSI",
+        "name": "Hang Seng Index",
+        "market": "hk_index"
+    },
+    "industries": {
+        "biotech_healthcare": [
+            {
+                "code": "03069",
+                "name": "ChinaAMC HS Biotech ETF",
+                "currency": "HKD"
+            }
+        ],
+        "cloud_computing_robotics_ai": [
+            {
+                "code": "02807",
+                "name": "Global X China Robotics and AI ETF",
+                "currency": "HKD"
+            }
+        ],
+        "consumer_e_commerce": [
+            {
+                "code": "03189",
+                "name": "E Fund (HK) CSI Liquor Index ETF",
+                "currency": "HKD"
+            }
+        ],
+        "esg_clean_energy": [
+            {
+                "code": "03403",
+                "name": "ChinaAMC HSI ESG ETF",
+                "currency": "HKD"
+            }
+        ],
+        "internet_communications": [
+            {
+                "code": "02812",
+                "name": "Samsung CSI China Dragon Internet ETF",
+                "currency": "HKD"
+            }
+        ],
+        "real_estates": [
+            {
+                "code": "03187",
+                "name": "Samsung S&P High Dividend APAC ex NZ REITs ETF",
+                "currency": "HKD"
+            }
+        ],
+        "semiconductor": [
+            {
+                "code": "03191",
+                "name": "Global X China Semiconductor ETF",
+                "currency": "HKD"
+            }
+        ],
+        "technology_innovations": [
+            {
+                "code": "03033",
+                "name": "CSOP Hang Seng TECH Index ETF",
+                "currency": "HKD"
+            }
+        ],
+        "transportation": [
+            {
+                "code": "02845",
+                "name": "Global X China Electric Vehicle and Battery ETF",
+                "currency": "HKD"
+            }
+        ],
+        "virtual_assets": [
+            {
+                "code": "03066",
+                "name": "CSOP Bitcoin Futures ETF",
+                "currency": "HKD"
+            }
+        ]
+    }
+}

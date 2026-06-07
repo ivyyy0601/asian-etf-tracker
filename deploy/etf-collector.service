@@ -1,0 +1,16 @@
+# Data collection — runs once, then exits (driven by etf-collector.timer).
+# Install: copy to /etc/systemd/system/etf-collector.service
+# Run manually any time:  sudo systemctl start etf-collector
+# Logs: journalctl -u etf-collector -f
+
+[Unit]
+Description=ETF Tracker daily data collection
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=etf
+WorkingDirectory=/opt/etf-tracker
+Environment=DATA_ROOT=/opt/etf-tracker
+ExecStart=/opt/etf-tracker/venv/bin/python data_collection.py
