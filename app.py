@@ -119,11 +119,12 @@ def main():
     # ── Sidebar: Date Range ───────────────────────────────────────────────────
     st.sidebar.subheader("📅 Date Range")
 
-    config_start   = datetime.strptime(active_config['settings']['start_date'], '%Y-%m-%d').date()
-    config_end_raw = datetime.strptime(active_config['settings']['end_date'],   '%Y-%m-%d').date()
+    date_config = configs.get("A-Share", active_config) if page == "Emerging ETFs" else active_config
+    config_start   = datetime.strptime(date_config['settings']['start_date'], '%Y-%m-%d').date()
+    config_end_raw = datetime.strptime(date_config['settings']['end_date'],   '%Y-%m-%d').date()
     # End = the latest date actually collected for this market (its latest
     # completed trading day), not a guess from the day of the week.
-    data_end       = latest_data_date(active_config['settings']['data_root_dir'])
+    data_end       = latest_data_date('data_ashare' if page == 'Emerging ETFs' else active_config['settings']['data_root_dir'])
     config_end     = min(config_end_raw, data_end) if data_end else config_end_raw
 
     def clamp_date(d, lo, hi):
@@ -166,7 +167,8 @@ def main():
         st.sidebar.error("Start date must be before end date!")
         start_date, end_date = end_date, start_date
 
-    st.sidebar.caption(f"Data available: {config_start} to {config_end}")
+    st.sidebar.caption(f"Latest collected date: {data_end or 'Unavailable'}")
+    st.sidebar.caption("Dates use each exchange's local trading calendar. Individual ETFs may have older data.")
 
     # ── Route to page ─────────────────────────────────────────────────────────
     if page == "Summary Dashboard":

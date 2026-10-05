@@ -20,3 +20,7 @@ env/
 
 # ── Precomputed dashboard cache (build_cache.py) ─────────────────────────────
 dashboard_cache.pkl
+
+# Runtime roster refresh state and previous snapshots
+emerging_refresh_status.json
+roster_backups/

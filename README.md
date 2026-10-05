@@ -59,3 +59,32 @@ Full deployment and operations guide (Chinese): **[deploy/DEPLOY.md](deploy/DEPL
 | Comparison | Cumulative-return overlay of any assets across markets |
 | Pair Analysis | Two-asset stats: correlation, OLS β/α, cointegration + Z-score, rolling beta/vol, lead-lag |
 | Emerging ETFs | Post-2025 A-Share listings — growth, AUM vs return |
+
+## Emerging ETF roster and dates
+
+The Emerging ETFs page covers **Shanghai-listed ETFs** listed since 2025-01-01
+with the SSE's latest published scale of at least CNY 1 billion (10 亿元).
+Shenzhen listings are not covered. The source is https://etf.sse.com.cn/fundlist/.
+SSE `SCALE` is in 100 million CNY; the stored `scale_billion_cny` divides it by 10.
+The source does not supply a scale valuation date, so retrieval time is labelled
+separately from each ETF's actual price observation dates.
+
+`data_collection.py` checks the roster before daily price collection and refreshes
+it once per UTC calendar month. Failed requests, incomplete lists, invalid values,
+and a drop below half the previous roster preserve the previous JSON and record
+a failure in `emerging_refresh_status.json`; the next daily run retries. A successful
+refresh atomically replaces the roster and saves the previous version in
+`roster_backups/`. Never delete these snapshots as part of deployment.
+
+Existing industry classifications are retained by code. New codes go into
+`unclassified` until reviewed, and price collection includes them automatically.
+ETFs falling below the size threshold leave the current roster; their historical
+CSV files and previous snapshots remain intact. Manual refresh:
+`python refresh_emerging.py --force`.
+
+The sidebar shows the newest observed CSV date across the selected market, not a
+guarantee of complete coverage. Emerging ETF details show each ETF's observed
+start/end dates and coverage count. Cache keys include file path, nanosecond mtime
+and size; changing an older file also invalidates the latest-date cache.
+
+Regression checks: `python -m unittest discover -s tests -v`.

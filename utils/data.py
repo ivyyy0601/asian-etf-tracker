@@ -496,7 +496,9 @@ def get_emerging_etf_data(emerging_config, selected_industries, start_date, end_
                 "Currency":      currency,
                 "Total Return":  total_ret,
                 "Weekly Growth": weekly_growth,
-                "Days Listed":   days_listed,
+                "Observed Days": days_listed,
+                "Price From":    df.index[0].date().isoformat(),
+                "Price Through": df.index[-1].date().isoformat(),
                 "Label":         col_label,
             })
 

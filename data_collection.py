@@ -1,3 +1,4 @@
+from pathlib import Path
 import json
 import os
 import yfinance as yf
@@ -325,6 +326,10 @@ def run_collection(use_dynamic_dates=True):
         use_dynamic_dates: If True, automatically calculates end_date as last trading day.
                           If False, uses end_date from config file.
     """
+    from refresh_emerging import refresh
+    # Refresh failures preserve the previous roster and do not stop price collection.
+    refresh(Path(_app(EMERGING_CONFIG_FILE)), Path(_data("emerging_refresh_status.json")))
+
     for config_file in CONFIG_FILES:
         logging.info(f"\n=== Processing Config: {config_file} ===")
         config_path = _app(config_file)

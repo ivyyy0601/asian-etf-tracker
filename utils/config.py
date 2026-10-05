@@ -37,15 +37,19 @@ STOCK_SPLITS: dict = {
 # Cached per file version (mtime): the collector can rewrite a list (e.g. the
 # monthly emerging-ETF refresh) and the page picks it up without a restart.
 def _mtime(path: str):
-    return os.path.getmtime(path) if os.path.exists(path) else None
+    try:
+        stat = os.stat(path)
+        return (os.path.abspath(path), stat.st_mtime_ns, stat.st_size)
+    except FileNotFoundError:
+        return (os.path.abspath(path), None, None)
 
 
 def load_emerging_config():
     return _load_emerging_config(_mtime(EMERGING_CONFIG_FILE))
 
 
-@st.cache_data
-def _load_emerging_config(_version):
+@st.cache_data(max_entries=32)
+def _load_emerging_config(version):
     if os.path.exists(EMERGING_CONFIG_FILE):
         with open(EMERGING_CONFIG_FILE, 'r') as f:
             return json.load(f)
@@ -56,8 +60,8 @@ def load_all_configs():
     return _load_all_configs(tuple(_mtime(f) for f in CONFIG_FILES.values()))
 
 
-@st.cache_data
-def _load_all_configs(_versions):
+@st.cache_data(max_entries=32)
+def _load_all_configs(versions):
     configs = {}
     for market, file in CONFIG_FILES.items():
         if os.path.exists(file):
@@ -74,11 +78,11 @@ def latest_data_date(data_root_dir: str):
     files = [os.path.join(d, f) for d, _, fs in os.walk(root) for f in fs if f.endswith(".csv")]
     if not files:
         return None
-    return _latest_data_date(tuple(sorted(files)), max(os.path.getmtime(f) for f in files))
+    return _latest_data_date(tuple(sorted(files)), tuple(_mtime(f) for f in sorted(files)))
 
 
-@st.cache_data
-def _latest_data_date(files, _version):
+@st.cache_data(max_entries=32)
+def _latest_data_date(files, version):
     from datetime import date
     latest = None
     for path in files:
@@ -92,3 +96,12 @@ def _latest_data_date(files, _version):
             continue
         latest = d if latest is None or d > latest else latest
     return latest
+
+
+def load_emerging_refresh_status():
+    path = _data("emerging_refresh_status.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return {}

@@ -5,18 +5,34 @@ Emerging ETFs page — A-Share post-2025 listings.
 import plotly.graph_objects as go
 import streamlit as st
 
-from utils.config import load_emerging_config
+from utils.config import load_emerging_config, load_emerging_refresh_status
 from utils.data import get_emerging_etf_data, INDUSTRY_DISPLAY
 
 
 def render_emerging_page(start_date, end_date):
-    st.header("🌱 Emerging ETFs — A-Share (Post-2025 Listings)")
+    st.header("🌱 Emerging ETFs — Shanghai-listed (Since Jan 2025)")
 
     emerging_config = load_emerging_config()
     if emerging_config is None:
         st.error("Emerging config file not found.")
         return
 
+    st.caption("Coverage: Shanghai Stock Exchange ETFs listed since 2025-01-01, "
+               "with fund scale of at least CNY 1 billion. Shenzhen listings are not included.")
+    st.caption(f"Roster retrieved: {emerging_config.get('refreshed_at', emerging_config.get('generated_date', 'Unknown'))} "
+               "· Monthly refresh · Source: Shanghai Stock Exchange")
+    st.caption("Fund scale is the latest value published by the source; its valuation date is not supplied. "
+               "B CNY means billion yuan. Price dates are shown separately below.")
+    from datetime import date
+    try:
+        refreshed = date.fromisoformat(emerging_config.get('generated_date', ''))
+        if (date.today() - refreshed).days > 35:
+            st.warning("The ETF roster is more than 35 days old; a refresh is pending.")
+    except ValueError:
+        st.warning("The ETF roster update date is unavailable.")
+    status = load_emerging_refresh_status()
+    if status.get('status') == 'failed':
+        st.warning("The latest roster refresh failed. The last successful roster is retained.")
     all_industries  = list(emerging_config['industries'].keys())
     industry_labels = {k: INDUSTRY_DISPLAY.get(k, k.replace('_', ' ').title())
                        for k in all_industries}
@@ -47,6 +63,9 @@ def render_emerging_page(start_date, end_date):
 
     import pandas as pd
     records_df = pd.DataFrame(records)
+    total = sum(len(emerging_config['industries'][k]) for k in selected_industry_keys)
+    st.caption(f"Showing {len(records)} of {total} selected ETFs with at least two price observations "
+               "in the selected range. Returns use each ETF's available start and end dates.")
 
     # Colour palette mapped to industries
     unique_industries = list({r["Industry Key"] for r in records})
@@ -165,7 +184,7 @@ def render_emerging_page(start_date, end_date):
 
     display_df = records_df[[
         "Code", "Name", "Industry", "Listing Date", "Scale (B CNY)",
-        "Index", "Currency", "Total Return", "Weekly Growth", "Days Listed",
+        "Index", "Currency", "Price From", "Price Through", "Total Return", "Weekly Growth", "Observed Days",
     ]].sort_values("Total Return", ascending=False).reset_index(drop=True)
 
     st.dataframe(
