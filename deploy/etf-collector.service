@@ -1,6 +1,9 @@
-# Data collection — runs once, then exits (driven by etf-collector.timer).
-# Install: copy to /etc/systemd/system/etf-collector.service
-# Run manually any time:  sudo systemctl start etf-collector
+# Daily data collection — runs once and exits (triggered by etf-collector.timer).
+#   1. data_collection.py  → incremental OHLCV fetch into data*/ CSVs
+#   2. build_cache.py      → precompute Summary views into dashboard_cache.pkl
+#
+# Server path: /etc/systemd/system/etf-collector.service
+# Run manually: sudo systemctl start etf-collector
 # Logs: journalctl -u etf-collector -f
 
 [Unit]
@@ -13,4 +16,6 @@ Type=oneshot
 User=etf
 WorkingDirectory=/opt/etf-tracker
 Environment=DATA_ROOT=/opt/etf-tracker
+Environment=TZ=Asia/Hong_Kong
 ExecStart=/opt/etf-tracker/venv/bin/python data_collection.py
+ExecStartPost=/opt/etf-tracker/venv/bin/python build_cache.py

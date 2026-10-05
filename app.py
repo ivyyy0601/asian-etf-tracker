@@ -6,18 +6,19 @@ Structure
 utils/config.py      — constants, config loaders
 utils/data.py        — all data-fetching / computation helpers
 utils/charts.py      — reusable Plotly chart builders
-pages/summary.py     — Summary Dashboard
-pages/industry.py    — Industry Analysis
-pages/comparison.py  — Comparison
-pages/pair_analysis.py — Pair Analysis
-pages/emerging.py    — Emerging ETFs
-sentiment_analysis/  — Google Trends sentiment module
+utils/data_cached.py — reads precomputed views from dashboard_cache.pkl
+_pages/summary.py    — Summary Dashboard
+_pages/industry.py   — Industry Analysis
+_pages/comparison.py — Comparison
+_pages/pair_analysis.py — Pair Analysis
+_pages/emerging.py   — Emerging ETFs
+sentiment_analysis/  — optional Google Trends module (not included in this build)
 """
 
 import streamlit as st
 from datetime import datetime, timedelta, date as _date
 
-from utils.config import load_all_configs
+from utils.config import latest_data_date, load_all_configs
 
 from _pages.summary      import render_summary_page
 from _pages.industry     import render_industry_page
@@ -36,19 +37,32 @@ except ImportError:
 st.set_page_config(page_title="ETF Tracker", layout="wide")
 
 
-def _last_trading_day(today: _date) -> _date:
-    """Return the most recent completed trading day (Mon–Fri) before or on today."""
-    if today.weekday() == 0:    # Monday → last Friday
-        return today - timedelta(days=3)
-    elif today.weekday() == 6:  # Sunday → last Friday
-        return today - timedelta(days=2)
-    elif today.weekday() == 5:  # Saturday → last Friday
-        return today - timedelta(days=1)
-    else:                       # Tue–Fri → yesterday
-        return today - timedelta(days=1)
+# ---- Top navigation shared by the three dashboards on this server ----
+_SITES = [("Stock Sentiment", "/dashboard/"), ("Market Sentiment", "/sentiment/"),
+          ("ETF Tracker", "/etf/")]
+
+
+def _site_nav(current: str):
+    """A row of links to the three dashboards; `current` is highlighted."""
+    links = "".join(
+        f'<a href="{url}" target="_self" class="site-nav-btn{" current" if url == current else ""}">{label}</a>'
+        for label, url in _SITES
+    )
+    st.markdown(
+        "<style>"
+        ".site-nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}"
+        ".site-nav-btn{padding:6px 14px;border:1px solid #d0d4dc;border-radius:8px;"
+        "text-decoration:none!important;color:#31333f!important;font-size:0.9rem}"
+        ".site-nav-btn:hover{border-color:#ff4b4b;color:#ff4b4b!important}"
+        ".site-nav-btn.current{background:#31333f;border-color:#31333f;color:#fff!important}"
+        "</style>"
+        f'<div class="site-nav">{links}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def main():
+    _site_nav("/etf/")
     st.title("📈 Thematic ETF Tracker")
 
     configs = load_all_configs()
@@ -107,7 +121,10 @@ def main():
 
     config_start   = datetime.strptime(active_config['settings']['start_date'], '%Y-%m-%d').date()
     config_end_raw = datetime.strptime(active_config['settings']['end_date'],   '%Y-%m-%d').date()
-    config_end     = min(config_end_raw, _last_trading_day(_date.today()))
+    # End = the latest date actually collected for this market (its latest
+    # completed trading day), not a guess from the day of the week.
+    data_end       = latest_data_date(active_config['settings']['data_root_dir'])
+    config_end     = min(config_end_raw, data_end) if data_end else config_end_raw
 
     def clamp_date(d, lo, hi):
         return max(lo, min(d, hi))

@@ -9,6 +9,10 @@ pandas==2.3.3
 numpy==2.4.1
 yfinance==1.1.0
 akshare==1.18.20
+# JS engine akshare needs for its Sina / HK endpoints. Replaces py_mini_racer 0.6,
+# which has no Linux ARM (aarch64) build — on the Hetzner ARM server every AkShare
+# fallback failed with "Native library not available".
+mini-racer==0.14.1
 
 # ── Analysis ─────────────────────────────────────────────────────────────────
 scipy==1.17.0

@@ -1,20 +1,16 @@
-# Triggers etf-collector.service Mon-Fri at 08:00 Hong Kong time.
-# (Server timezone is set to Asia/Hong_Kong by deploy/setup.sh, so this is local 08:00.)
-# At 08:00 HKT the market hasn't opened yet, so it fetches the PREVIOUS trading day's
-# full close — which by then is available for all 5 markets (incl. US overnight).
-# Mon-Fri covers all 5 weekday closes (Friday's close is picked up Monday morning).
+# Triggers etf-collector.service Mon–Fri at 07:00 Hong Kong time.
+# The timezone is explicit in OnCalendar because the server clock itself is
+# America/New_York (shared with the sentiment dashboard) — 07:00 HKT = 19:00 ET.
+# At that hour the previous trading day's close is final for all 5 markets.
 #
-# Install: copy to /etc/systemd/system/etf-collector.timer
-#   sudo systemctl daemon-reload
-#   sudo systemctl enable --now etf-collector.timer
-# Check schedule:  systemctl list-timers etf-collector.timer
+# Server path: /etc/systemd/system/etf-collector.timer
+# Next run: systemctl list-timers etf-collector.timer
 
 [Unit]
-Description=Run ETF data collection Mon-Fri 08:00 HKT
+Description=ETF collection Mon-Fri 07:00 Hong Kong time
 
 [Timer]
-# Mon..Fri at 08:00 server-local time (= HKT).
-OnCalendar=Mon..Fri *-*-* 08:00:00
+OnCalendar=Mon..Fri *-*-* 07:00:00 Asia/Hong_Kong
 # If the server was off at trigger time, run as soon as it's back up
 Persistent=true
 

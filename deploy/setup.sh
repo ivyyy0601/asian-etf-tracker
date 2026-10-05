@@ -17,12 +17,12 @@ APP_DIR="/opt/etf-tracker"
 # Directory this script lives in (project root = its parent)
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
-echo "==> [1/5] Installing system packages + setting timezone to Hong Kong..."
+echo "==> [1/5] Installing system packages..."
 apt-get update -y
 apt-get install -y python3 python3-venv python3-pip git rsync
-# Set server clock to HKT so the 08:00 collection timer + last-trading-day logic
-# both operate in Hong Kong time.
-timedatectl set-timezone Asia/Hong_Kong
+# The server clock stays as-is (America/New_York, shared with the sentiment
+# dashboard). Hong Kong time is set per-service: TZ=Asia/Hong_Kong in the units
+# and an explicit timezone in the timer's OnCalendar.
 
 echo "==> [2/5] Creating user '$APP_USER' and $APP_DIR ..."
 id -u "$APP_USER" &>/dev/null || useradd --system --create-home --shell /bin/bash "$APP_USER"
@@ -54,7 +54,8 @@ systemctl start etf-collector
 IP="$(hostname -I | awk '{print $1}')"
 echo
 echo "============================================================"
-echo " Done. Dashboard:  http://$IP:8501"
+echo " Done. Dashboard:  http://$IP/etf/  (via nginx — see final/server/nginx.conf)"
+echo "                  direct: http://127.0.0.1:8502/etf/ on the server"
 echo " Dashboard logs:   journalctl -u etf-dashboard -f"
 echo " Collector logs:   journalctl -u etf-collector -f"
 echo " Next runs:        systemctl list-timers etf-collector.timer"

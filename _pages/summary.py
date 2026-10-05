@@ -7,8 +7,9 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+from utils import cache
 from utils.charts import build_volume_chart
-from utils.data import (
+from utils.data_cached import (
     get_all_etf_returns,
     get_industry_avg_returns,
     get_industry_momentum,
@@ -20,6 +21,22 @@ from utils.data import (
 def render_summary_page(config, start_date, end_date, market_name):
     st.header(f"📊 {market_name} Summary Dashboard")
     st.markdown(f"**Period:** {start_date} to {end_date}")
+
+    # Data is collected once per weekday by the etf-collector timer (07:00 HKT),
+    # which also rebuilds this page's cache — so there is nothing to refresh here.
+    _meta = cache.meta()
+    _updated = "not yet"
+    if _meta.get("computed_at"):
+        _ts = pd.Timestamp(_meta["computed_at"])
+        _ts = _ts.tz_localize("UTC") if _ts.tzinfo is None else _ts
+        _updated = _ts.tz_convert("Asia/Hong_Kong").strftime("%Y-%m-%d %H:%M HKT")
+    st.caption(
+        f"📦 **Data last updated: {_updated}** — updated automatically every weekday "
+        f"(Mon–Fri) at 07:00 Hong Kong time. Every figure uses each market's latest "
+        f"**completed** trading day (a market closed for a holiday keeps its last session); "
+        f"nothing on this page is fetched live. Custom date ranges are calculated from "
+        f"the same stored data."
+    )
 
     # ── Section 0: Industry Average Performance ──────────────────────────────
     st.subheader("🏭 Industry Average Performance")

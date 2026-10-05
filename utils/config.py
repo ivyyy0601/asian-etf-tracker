@@ -34,19 +34,61 @@ STOCK_SPLITS: dict = {
 }
 
 # ── Config loaders ────────────────────────────────────────────────────────────
-@st.cache_data
+# Cached per file version (mtime): the collector can rewrite a list (e.g. the
+# monthly emerging-ETF refresh) and the page picks it up without a restart.
+def _mtime(path: str):
+    return os.path.getmtime(path) if os.path.exists(path) else None
+
+
 def load_emerging_config():
+    return _load_emerging_config(_mtime(EMERGING_CONFIG_FILE))
+
+
+@st.cache_data
+def _load_emerging_config(_version):
     if os.path.exists(EMERGING_CONFIG_FILE):
         with open(EMERGING_CONFIG_FILE, 'r') as f:
             return json.load(f)
     return None
 
 
-@st.cache_data
 def load_all_configs():
+    return _load_all_configs(tuple(_mtime(f) for f in CONFIG_FILES.values()))
+
+
+@st.cache_data
+def _load_all_configs(_versions):
     configs = {}
     for market, file in CONFIG_FILES.items():
         if os.path.exists(file):
             with open(file, 'r') as f:
                 configs[market] = json.load(f)
     return configs
+
+
+# ── Latest date actually in the data ──────────────────────────────────────────
+def latest_data_date(data_root_dir: str):
+    """Newest date across a market's CSVs (its latest completed session as
+    collected), or None if there is no data yet."""
+    root = _data(data_root_dir)
+    files = [os.path.join(d, f) for d, _, fs in os.walk(root) for f in fs if f.endswith(".csv")]
+    if not files:
+        return None
+    return _latest_data_date(tuple(sorted(files)), max(os.path.getmtime(f) for f in files))
+
+
+@st.cache_data
+def _latest_data_date(files, _version):
+    from datetime import date
+    latest = None
+    for path in files:
+        try:
+            with open(path, "rb") as fh:
+                fh.seek(0, os.SEEK_END)
+                fh.seek(max(fh.tell() - 512, 0))
+                last = fh.read().decode("utf-8", "ignore").strip().splitlines()[-1]
+            d = date.fromisoformat(last.split(",")[0][:10])
+        except (OSError, ValueError, IndexError):
+            continue
+        latest = d if latest is None or d > latest else latest
+    return latest

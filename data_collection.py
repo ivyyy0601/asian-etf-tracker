@@ -4,7 +4,8 @@ import yfinance as yf
 import pandas as pd
 import time
 import akshare as ak
-from datetime import datetime, timedelta
+from datetime import date, datetime, time as dtime, timedelta
+from zoneinfo import ZoneInfo
 import logging
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
@@ -42,28 +43,37 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+# yfinance logs its own ERROR for every empty download ("possibly delisted; no
+# price data found") — on market holidays that's every symbol. fetch_ticker
+# decides what's a real failure and logs that itself.
+logging.getLogger("yfinance").setLevel(logging.CRITICAL)
 
-def get_last_trading_day():
-    """
-    Returns the most recent trading day (yesterday or last Friday if weekend).
-    """
-    today = datetime.now()
+# Each market's timezone and regular close; a day counts as complete 30 min after it.
+MARKET_SESSIONS = {
+    'hk':    ("Asia/Hong_Kong",   dtime(16, 10)),
+    'cn':    ("Asia/Shanghai",    dtime(15, 0)),
+    'tw':    ("Asia/Taipei",      dtime(13, 30)),
+    'sk':    ("Asia/Seoul",       dtime(15, 30)),
+    'us':    ("America/New_York", dtime(16, 0)),
+    'other': ("Asia/Hong_Kong",   dtime(16, 10)),
+}
+CLOSE_BUFFER = timedelta(minutes=30)
+# An empty download within this many days of the last stored bar is a holiday,
+# not a failure.
+HOLIDAY_TOLERANCE_DAYS = 10
 
-    # If today is Saturday (5), go back 1 day to Friday
-    # If today is Sunday (6), go back 2 days to Friday
-    # If today is Monday (0), go back 3 days to Friday
-    # Otherwise, go back 1 day to yesterday
 
-    if today.weekday() == 5:  # Saturday
-        last_trading_day = today - timedelta(days=1)
-    elif today.weekday() == 6:  # Sunday
-        last_trading_day = today - timedelta(days=2)
-    elif today.weekday() == 0:  # Monday
-        last_trading_day = today - timedelta(days=3)
-    else:  # Tuesday to Friday
-        last_trading_day = today - timedelta(days=1)
-
-    return last_trading_day.strftime('%Y-%m-%d')
+def last_completed_session(market, now=None):
+    """Most recent weekday whose session in `market` has finished (local time).
+    Holidays aren't known here: an empty download is handled in fetch_ticker."""
+    tz, close = MARKET_SESSIONS.get(market, MARKET_SESSIONS['other'])
+    local = (now or datetime.now(ZoneInfo("UTC"))).astimezone(ZoneInfo(tz))
+    day = local.date()
+    if local.weekday() >= 5 or local < datetime.combine(day, close, local.tzinfo) + CLOSE_BUFFER:
+        day -= timedelta(days=1)
+    while day.weekday() >= 5:
+        day -= timedelta(days=1)
+    return day
 
 def get_existing_data_range(filepath):
     """
@@ -247,89 +257,65 @@ def fetch_with_akshare_sina(symbol, start, end):
         return None
 
 
-def fetch_ticker(symbol, name, folder, start, end, currency=None):
+def fetch_ticker(symbol, name, folder, start, end=None, currency=None):
+    """Bring `folder/symbol.csv` up to the market's latest completed session.
+
+    `end` (optional) caps the range further, e.g. a config end_date. Yahoo's
+    `end` is exclusive, so the request runs to the day after; anything after
+    the latest completed session (a session still trading) is dropped.
+    """
     filepath = os.path.join(folder, f"{symbol}.csv")
     curr_str = f" [{currency}]" if currency else ""
+    yf_symbol = get_yfinance_symbol(symbol)
+    market = _market_of(str(symbol), yf_symbol)
 
-    # Check existing data range
+    last_done = pd.Timestamp(last_completed_session(market))
+    if end is not None:
+        last_done = min(last_done, pd.Timestamp(end))
+
     existing_min, existing_max = get_existing_data_range(filepath)
-
-    if existing_min and existing_max:
-        # Data already exists, check if we need to update
-        start_date = pd.Timestamp(start)
-        end_date = pd.Timestamp(end)
-
-        # If existing data already covers the requested range, skip
-        if existing_min <= start_date and existing_max >= end_date:
-            logging.info(f"   {name} ({symbol}){curr_str} - Data already up-to-date (covers {start} to {end})")
+    if existing_max is not None:
+        if existing_max >= last_done:
+            logging.info(f"   {name} ({symbol}){curr_str} - Up to date (through {existing_max.date()})")
             return
-
-        # Update the fetch range to only get missing data
-        if existing_max < end_date:
-            # Fetch from day after last existing date to end_date
-            start = (existing_max + timedelta(days=1)).strftime('%Y-%m-%d')
-            logging.info(f"   {name} ({symbol}){curr_str} - Updating from {start} to {end}")
-        else:
-            logging.info(f"   {name} ({symbol}){curr_str} - Data already up-to-date")
-            return
+        start = (existing_max + timedelta(days=1)).strftime('%Y-%m-%d')
+        logging.info(f"   {name} ({symbol}){curr_str} - Updating {start} → {last_done.date()}")
     else:
-        logging.info(f"   Fetching {name} ({symbol}){curr_str} - Full range {start} to {end}")
+        logging.info(f"   Fetching {name} ({symbol}){curr_str} - Full range {start} → {last_done.date()}")
+
+    def _in_range(df):
+        return df[(df.index >= pd.Timestamp(start)) & (df.index <= last_done)] if df is not None else None
 
     # 1. Try yfinance first
-    yf_symbol = get_yfinance_symbol(symbol)
-    market    = _market_of(str(symbol), yf_symbol)
-
-    success  = False
     df_clean = None
-
-    # Known split-adjusted tickers that yfinance handles poorly
-    problematic_tickers = ['03139', '03033', '03032']
-
+    # Known split-adjusted tickers that yfinance handles poorly. (03033 was here
+    # too, but Yahoo's 3033.HK matches our history exactly — and with the AkShare
+    # fallback broken it stopped updating after 2026-09-10.)
+    problematic_tickers = ['03139', '03032']
     try:
-        df = yf.download(yf_symbol, start=start, end=end, progress=False)
-        df_clean = clean_yfinance_dataframe(df)
-
-        if symbol in problematic_tickers or df_clean.empty:
-            logging.warning(f"      -> yfinance empty/problematic for {symbol}. Trying fallback...")
-            success = False
-        else:
-            success = True
-
+        if symbol not in problematic_tickers:
+            df = yf.download(yf_symbol, start=start,
+                             end=(last_done + timedelta(days=1)).strftime('%Y-%m-%d'), progress=False)
+            df_clean = _in_range(clean_yfinance_dataframe(df))
     except Exception as e:
-        logging.error(f"      -> yfinance error for {symbol}: {e}")
-        success = False
+        logging.warning(f"      -> yfinance error for {symbol}: {e}")
 
     # 2. Fallback to AkShare (HK and CN only — TW/SK have no AkShare support)
-    if not success:
+    if df_clean is None or df_clean.empty:
         if market == 'hk':
-            df_ak = fetch_with_akshare_hk(symbol)
-            if df_ak is not None and not df_ak.empty:
-                df_ak = df_ak[(df_ak.index >= pd.Timestamp(start)) & (df_ak.index <= pd.Timestamp(end))]
-                if not df_ak.empty:
-                    df_clean = df_ak
-                    success = True
-                else:
-                    logging.warning(f"      -> AkShare HK data empty after date filter for {symbol}")
-            else:
-                logging.warning(f"      -> AkShare HK returned no data for {symbol}")
-
+            df_clean = _in_range(fetch_with_akshare_hk(symbol))
         elif market == 'cn':
-            df_sina = fetch_with_akshare_sina(symbol, start, end)
-            if df_sina is not None and not df_sina.empty:
-                df_clean = df_sina
-                success = True
-            else:
-                logging.warning(f"      -> AkShare CN returned no data for {symbol}")
+            df_clean = _in_range(fetch_with_akshare_sina(symbol, start, last_done.strftime('%Y-%m-%d')))
 
-        else:
-            # TW / SK — no AkShare fallback available, skip gracefully
-            logging.warning(f"      -> yfinance failed for {symbol} ({market.upper()}), no fallback available — skipping")
-
-    # 3. Save or merge data
-    if success and df_clean is not None and not df_clean.empty:
+    # 3. Save, or decide whether "nothing new" is a holiday or a real failure
+    if df_clean is not None and not df_clean.empty:
         merge_and_save_data(filepath, df_clean)
+        logging.info(f"      -> +{len(df_clean)} rows (through {df_clean.index.max().date()})")
+    elif existing_max is not None and (last_done - existing_max).days <= HOLIDAY_TOLERANCE_DAYS:
+        logging.info(f"      -> no new sessions since {existing_max.date()} (market holiday?)")
     else:
-        logging.error(f"      -> Failed to fetch data for {symbol}")
+        since = existing_max.date() if existing_max is not None else "never"
+        logging.error(f"      -> FAILED {name} ({symbol}): no data from any source; last stored bar: {since}")
 
 def run_collection(use_dynamic_dates=True):
     """
@@ -350,10 +336,10 @@ def run_collection(use_dynamic_dates=True):
         root_dir = _data(config['settings']['data_root_dir'])
         start_date = config['settings']['start_date']
 
-        # Use dynamic end date (yesterday/last Friday) or config end_date
+        # Dynamic: each symbol runs to its market's latest completed session
         if use_dynamic_dates:
-            end_date = get_last_trading_day()
-            logging.info(f"Using dynamic end date: {end_date}")
+            end_date = None
+            logging.info("Using each market's latest completed session as end date")
         else:
             end_date = config['settings']['end_date']
             logging.info(f"Using config end date: {end_date}")
@@ -397,57 +383,14 @@ def run_collection(use_dynamic_dates=True):
     if os.path.exists(emerging_config_path):
         logging.info(f"\n=== Processing Emerging Config: {EMERGING_CONFIG_FILE} ===")
         emerging_config = load_config(emerging_config_path)
-        end_date = get_last_trading_day() if use_dynamic_dates else datetime.now().strftime('%Y-%m-%d')
-
         for industry_key, etf_list in emerging_config['industries'].items():
             logging.info(f"Processing Emerging Industry: {industry_key}")
             industry_dir = os.path.join(EMERGING_DATA_ROOT, industry_key)
             ensure_dir(industry_dir)
-
             for etf in etf_list:
-                code = etf['code']
-                name_etf = etf['name']
-                etf_start = etf.get('listing_date', '2025-01-01')
-                filepath = os.path.join(industry_dir, f"{code}.csv")
-
-                # Check if update needed
-                existing_min, existing_max = get_existing_data_range(filepath)
-                fetch_start = etf_start
-                if existing_min and existing_max:
-                    end_ts = pd.Timestamp(end_date)
-                    if existing_max >= end_ts:
-                        logging.info(f"   {name_etf} ({code}) - Already up-to-date")
-                        continue
-                    fetch_start = (existing_max + timedelta(days=1)).strftime('%Y-%m-%d')
-                    logging.info(f"   {name_etf} ({code}) - Updating from {fetch_start} to {end_date}")
-                else:
-                    logging.info(f"   {name_etf} ({code}) - Full fetch from {fetch_start} to {end_date}")
-
-                df = None
-
-                # 1. Try yfinance first
-                yf_symbol = get_yfinance_symbol(code)
-                try:
-                    raw = yf.download(yf_symbol, start=fetch_start, end=end_date, progress=False)
-                    df_yf = clean_yfinance_dataframe(raw)
-                    if not df_yf.empty:
-                        df = df_yf
-                        logging.info(f"      -> yfinance OK ({len(df)} rows)")
-                except Exception as e:
-                    logging.warning(f"      -> yfinance error for {code}: {e}")
-
-                # 2. Fallback: AkShare Sina Finance (skip silently on failure)
-                if df is None or df.empty:
-                    logging.info(f"      -> trying AkShare Sina for {code}...")
-                    df_sina = fetch_with_akshare_sina(code, fetch_start, end_date)
-                    if df_sina is not None and not df_sina.empty:
-                        df = df_sina
-                        logging.info(f"      -> AkShare Sina OK ({len(df)} rows)")
-                    else:
-                        logging.warning(f"   {name_etf} ({code}) - Both sources failed, skipping")
-
-                if df is not None and not df.empty:
-                    merge_and_save_data(filepath, df)
+                fetch_ticker(etf['code'], etf['name'], industry_dir,
+                             etf.get('listing_date', '2025-01-01'),
+                             None if use_dynamic_dates else datetime.now().strftime('%Y-%m-%d'))
                 time.sleep(1)
     else:
         logging.warning(f"{EMERGING_CONFIG_FILE} not found — skipping emerging ETF collection.")

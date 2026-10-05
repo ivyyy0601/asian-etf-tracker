@@ -1,11 +1,12 @@
-# Streamlit dashboard — always-on web service.
-# Install: copy to /etc/systemd/system/etf-dashboard.service
-#   sudo systemctl daemon-reload
-#   sudo systemctl enable --now etf-dashboard
+# ETF Tracker — always-on Streamlit web service.
+# Live at http://91.98.37.33/etf/ (nginx /etf/ → 127.0.0.1:8502).
+#
+# Server path: /etc/systemd/system/etf-dashboard.service
+#   sudo systemctl daemon-reload && sudo systemctl restart etf-dashboard
 # Logs: journalctl -u etf-dashboard -f
 
 [Unit]
-Description=ETF Tracker Streamlit dashboard
+Description=ETF Tracker dashboard
 After=network-online.target
 Wants=network-online.target
 
@@ -14,10 +15,8 @@ Type=simple
 User=etf
 WorkingDirectory=/opt/etf-tracker
 Environment=DATA_ROOT=/opt/etf-tracker
-ExecStart=/opt/etf-tracker/venv/bin/streamlit run app.py \
-    --server.port=8501 \
-    --server.address=0.0.0.0 \
-    --server.headless=true
+Environment=TZ=Asia/Hong_Kong
+ExecStart=/opt/etf-tracker/venv/bin/streamlit run app.py --server.port=8502 --server.address=127.0.0.1 --server.baseUrlPath=etf --server.headless=true
 Restart=always
 RestartSec=5
 
