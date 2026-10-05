@@ -6,11 +6,19 @@ The Summary page imports these instead of utils.data directly. On a cache hit
 miss they fall through to the live computation in utils.data.
 """
 from utils import cache, data
+from utils.config import _data, _mtime
+import hashlib
+import json
+import os
 
 
 def _mk(config) -> str:
     """Per-market cache id (the data dir is unique per market)."""
-    return config["settings"]["data_root_dir"]
+    root = os.path.abspath(_data(config["settings"]["data_root_dir"]))
+    versions = sorted(_mtime(os.path.join(d, f)) for d, _, files in os.walk(root)
+                      for f in files if f.endswith(".csv"))
+    fingerprint = hashlib.sha256(json.dumps([config, versions], sort_keys=True).encode()).hexdigest()
+    return ("v2", root, fingerprint)
 
 
 def _wrap(key, fn, *args):

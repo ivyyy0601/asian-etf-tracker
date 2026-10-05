@@ -12,23 +12,14 @@ from datetime import date, datetime, timedelta, timezone
 
 from utils import cache
 from utils import data_cached as dc
-from utils.config import load_all_configs
-
-
-def last_trading_day(today: date) -> date:
-    """Most recent completed trading day (matches app.py)."""
-    wd = today.weekday()
-    if wd == 0:   return today - timedelta(days=3)   # Mon → Fri
-    if wd == 6:   return today - timedelta(days=2)    # Sun → Fri
-    if wd == 5:   return today - timedelta(days=1)    # Sat → Fri
-    return today - timedelta(days=1)                  # Tue–Fri → yesterday
+from utils.config import load_all_configs, latest_data_date
 
 
 def default_range(cfg) -> tuple[date, date]:
     """The date range the dashboard uses on first load (must match app.py)."""
     cfg_start = datetime.strptime(cfg["settings"]["start_date"], "%Y-%m-%d").date()
     cfg_end_raw = datetime.strptime(cfg["settings"]["end_date"], "%Y-%m-%d").date()
-    return cfg_start, min(cfg_end_raw, last_trading_day(date.today()))
+    return cfg_start, min(cfg_end_raw, latest_data_date(cfg["settings"]["data_root_dir"]) or cfg_end_raw)
 
 
 def rebuild_all() -> dict:

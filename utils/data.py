@@ -70,7 +70,7 @@ def get_data_for_industry(industry_key, config, selected_currencies, start_date,
     stats = [{
         "Code":       bench_code,
         "Name":       config['benchmark']['name'],
-        "Currency":   "CNY" if config['benchmark'].get('market') == "cn_index" else "HKD",
+        "Currency":   config["benchmark"].get("currency") or {"cn_index": "CNY", "us_index": "USD", "tw_index": "TWD", "sk_index": "KRW"}.get(config["benchmark"].get("market"), "HKD"),
         "Return":     bench_total_ret,
         "Beat Market": "-",
     }]
@@ -208,69 +208,42 @@ def get_industry_avg_returns(config, start_date, end_date):
     return industry_returns, bench_return
 
 
+def trailing_return(frame, end_date, sessions=None):
+    """Close-to-close return across actual observations, or calendar YTD.
+
+    An N-session return needs N+1 closes. YTD starts at the last close before
+    January 1. Missing baselines return NaN rather than a shorter period.
+    """
+    end = pd.Timestamp(end_date)
+    close = frame.loc[frame.index <= end, "Close"].dropna().sort_index()
+    if sessions is not None:
+        return float(close.iloc[-1] / close.iloc[-sessions-1] - 1) if len(close) > sessions else float('nan')
+    baseline = close[close.index < pd.Timestamp(year=end.year, month=1, day=1)]
+    current = close[close.index >= pd.Timestamp(year=end.year, month=1, day=1)]
+    return float(current.iloc[-1] / baseline.iloc[-1] - 1) if len(current) and len(baseline) else float('nan')
+
+
 def get_industry_momentum(config, end_date, windows=(5, 21, 63)):
-    """
-    Compute industry average return and benchmark return for multiple trailing windows.
-
-    Returns:
-        industry_df  — pd.DataFrame, rows=industries, cols=window labels, values=avg return
-        bench_df     — pd.Series, index=window labels, values=bench return
-        rel_df       — pd.DataFrame, same shape as industry_df but values = industry - bench (relative)
-    """
-    root_dir   = _data(config['settings']['data_root_dir'])
+    """Returns for the configured representative ETF in each industry."""
+    root_dir = _data(config['settings']['data_root_dir'])
+    cols = [f"{w}d" for w in windows] + ['YTD']
     bench_code = config['benchmark']['code']
-    bench_path = os.path.join(root_dir, "benchmark", f"{bench_code}.csv")
-    bench_full = load_csv_data(bench_path, etf_code=bench_code)
-
-    end_ts = pd.Timestamp(end_date)
-    col_labels = [f"{w}d" for w in windows] + ['YTD']
-
-    # No benchmark data at all — return all-NaN result gracefully
-    if bench_full is None or bench_full.empty:
-        bench_series = pd.Series({c: float('nan') for c in col_labels})
-        empty = pd.DataFrame(float('nan'), index=[], columns=col_labels)
-        return empty, bench_series, empty
-
-    # Compute benchmark returns for each window
-    bench_rets = {}
-    for w in windows:
-        win_start = end_ts - pd.tseries.offsets.BDay(w)
-        b = bench_full[(bench_full.index >= win_start) & (bench_full.index <= end_ts)]
-        if len(b) >= 2:
-            bench_rets[f"{w}d"] = (b['Close'].iloc[-1] / b['Close'].iloc[0]) - 1
-        else:
-            bench_rets[f"{w}d"] = float('nan')
-
-    # YTD window
-    ytd_start = pd.Timestamp(f"{end_ts.year}-01-01")
-    b_ytd = bench_full[(bench_full.index >= ytd_start) & (bench_full.index <= end_ts)]
-    bench_rets['YTD'] = (b_ytd['Close'].iloc[-1] / b_ytd['Close'].iloc[0]) - 1 if len(b_ytd) >= 2 else float('nan')
-
-    bench_series = pd.Series(bench_rets, index=col_labels)
-
-    industry_rows = {}
-    for industry_key, etf_list in config['industries'].items():
-        industry_path = os.path.join(root_dir, industry_key)
-        label = industry_key.replace('_', ' ').title()
-        etf = etf_list[0] if etf_list else None
-        if etf is None:
+    bench = load_csv_data(os.path.join(root_dir, "benchmark", f"{bench_code}.csv"), etf_code=bench_code)
+    def returns(frame):
+        return {**{f"{w}d": trailing_return(frame, end_date, w) for w in windows},
+                "YTD": trailing_return(frame, end_date)}
+    bench_series = pd.Series(returns(bench) if bench is not None and not bench.empty
+                             else {c: float('nan') for c in cols})
+    rows = {}
+    for industry, entries in config['industries'].items():
+        if not entries:
             continue
-        code = etf['code']
-        full_df = load_csv_data(os.path.join(industry_path, f"{code}.csv"), etf_code=code)
-        if full_df is None or full_df.empty or not has_sufficient_data(full_df):
-            continue
-        row = {}
-        for col in col_labels:
-            win_start = ytd_start if col == 'YTD' else end_ts - pd.tseries.offsets.BDay(int(col[:-1]))
-            df = full_df[(full_df.index >= win_start) & (full_df.index <= end_ts)]
-            row[col] = (df['Close'].iloc[-1] / df['Close'].iloc[0]) - 1 if len(df) >= 2 else float('nan')
-        industry_rows[label] = row
-
-    industry_df = pd.DataFrame(industry_rows).T  # rows=industries, cols=windows
-    industry_df = industry_df[col_labels]         # ensure column order
-
-    rel_df = industry_df.subtract(bench_series)
-    return industry_df, bench_series, rel_df
+        code = entries[0]['code']
+        frame = load_csv_data(os.path.join(root_dir, industry, f"{code}.csv"), etf_code=code)
+        if frame is not None and not frame.empty and has_sufficient_data(frame):
+            rows[industry.replace('_', ' ').title()] = returns(frame)
+    result = pd.DataFrame.from_dict(rows, orient='index').reindex(columns=cols)
+    return result, bench_series, result.subtract(bench_series)
 
 
 def get_industry_volume_series(config, start_date, end_date):
@@ -300,8 +273,6 @@ def get_industry_turnover_comparison(config, end_date):
     """
     root_dir = _data(config['settings']['data_root_dir'])
     end_ts   = pd.Timestamp(end_date)
-    start_1m = end_ts - pd.tseries.offsets.BDay(21)
-    start_3m = end_ts - pd.tseries.offsets.BDay(63)
 
     result = {}
     for industry_key, etf_list in config['industries'].items():
@@ -313,12 +284,12 @@ def get_industry_turnover_comparison(config, end_date):
         df   = load_csv_data(os.path.join(industry_path, f"{code}.csv"), etf_code=code)
         if df is None or df.empty or not has_sufficient_data(df):
             continue
-        df = df[(df.index >= start_3m) & (df.index <= end_ts)]
-        if df.empty or 'Volume' not in df.columns or 'Close' not in df.columns:
+        df = df[df.index <= end_ts].tail(63)
+        if len(df) < 63 or 'Volume' not in df.columns or 'Close' not in df.columns:
             continue
 
         daily = df['Volume'] * df['Close']
-        t1m = daily[daily.index >= start_1m].sum()
+        t1m = daily.tail(21).sum()
         t3m_monthly_avg = daily.sum() / 3.0
 
         result[industry_key.replace('_', ' ').title()] = {'1M': t1m, '3M': t3m_monthly_avg}

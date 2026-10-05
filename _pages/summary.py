@@ -31,15 +31,16 @@ def render_summary_page(config, start_date, end_date, market_name):
         _ts = _ts.tz_localize("UTC") if _ts.tzinfo is None else _ts
         _updated = _ts.tz_convert("Asia/Hong_Kong").strftime("%Y-%m-%d %H:%M HKT")
     st.caption(
-        f"📦 **Data last updated: {_updated}** — updated automatically every weekday "
-        f"(Mon–Fri) at 07:00 Hong Kong time. Every figure uses each market's latest "
-        f"**completed** trading day (a market closed for a holiday keeps its last session); "
-        f"nothing on this page is fetched live. Custom date ranges are calculated from "
-        f"the same stored data."
+        f"Analytics cache built: {_updated}. Price collection is scheduled Mon–Fri "
+        "at 07:00 Hong Kong time. This is a calculation timestamp, not a price date. "
+        "The sidebar shows the latest stored trading date; individual ETFs can lag. "
+        "Custom ranges use stored prices."
     )
+    st.caption("Each industry is represented by its first configured ETF. Returns are "
+               "changes in stored closing-price series in the ETF's currency, not an industry-wide average. Provider adjustment conventions can differ.")
 
     # ── Section 0: Industry Average Performance ──────────────────────────────
-    st.subheader("🏭 Industry Average Performance")
+    st.subheader("🏭 Industry Representative Performance")
     industry_data, _ = get_industry_avg_returns(config, start_date, end_date)
 
     if industry_data:
@@ -66,6 +67,7 @@ def render_summary_page(config, start_date, end_date, market_name):
                     'Average Return': '{:.2%}',
                 }).map(_color_return, subset=['Average Return']),
                 hide_index=True, width='stretch',
+                column_config={'Average Return': 'ETF Return'},
             )
         with col2:
             st.markdown("**Industry Returns**")
@@ -79,7 +81,7 @@ def render_summary_page(config, start_date, end_date, market_name):
                 textposition='auto',
             ))
             fig.update_layout(
-                xaxis_title="Average Return", xaxis_tickformat='.1%',
+                xaxis_title="Representative ETF Return", xaxis_tickformat='.1%',
                 height=400, margin=dict(l=200, r=20, t=20, b=40),
                 showlegend=False, yaxis={'categoryorder': 'total ascending'},
             )
@@ -92,7 +94,7 @@ def render_summary_page(config, start_date, end_date, market_name):
     # ── Section 1: Momentum Heatmap ───────────────────────────────────────────
     st.subheader("🔥 Industry Momentum Heatmap")
     st.caption(
-        "Rolling returns computed from the selected end date backwards. "
+        "5d / 21d / 63d use actual trading observations (N+1 closing prices). YTD uses the last close before January 1; unavailable baselines show N/A. "
         "Toggle between absolute return and return relative to benchmark."
     )
 

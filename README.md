@@ -88,3 +88,12 @@ start/end dates and coverage count. Cache keys include file path, nanosecond mti
 and size; changing an older file also invalidates the latest-date cache.
 
 Regression checks: `python -m unittest discover -s tests -v`.
+
+The precomputed analytics use the same actual CSV end date as the page. Cache
+keys include source-file versions and configuration contents; corrected prices
+with an unchanged end date therefore invalidate old analytics. Cache replacement
+is atomic. Momentum periods use N+1 actual closing observations for N-session
+returns. YTD uses the last available close before January 1; insufficient history
+is N/A. Turnover comparison uses 21 versus 63 actual sessions. Industry summary
+metrics describe the first configured representative ETF, not all companies in
+that industry. Benchmark currencies follow their market.

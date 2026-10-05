@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import pickle
+import tempfile
 
 from utils.config import _data
 
@@ -26,7 +27,8 @@ _building: dict = {}
 def _read() -> dict:
     if not os.path.exists(CACHE_FILE):
         return {}
-    mtime = os.path.getmtime(CACHE_FILE)
+    stat = os.stat(CACHE_FILE)
+    mtime = (stat.st_mtime_ns, stat.st_size)
     if _loaded["mtime"] != mtime:
         try:
             with open(CACHE_FILE, "rb") as f:
@@ -56,6 +58,14 @@ def flush(extra_meta: dict | None = None) -> int:
     """Write all recorded values to the cache file. Returns number of entries."""
     payload = dict(_building)
     payload["__meta__"] = extra_meta or {}
-    with open(CACHE_FILE, "wb") as f:
-        pickle.dump(payload, f)
+    fd, temp = tempfile.mkstemp(dir=os.path.dirname(os.path.abspath(CACHE_FILE)), prefix=".dashboard-cache-")
+    try:
+        with os.fdopen(fd, "wb") as f:
+            pickle.dump(payload, f)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temp, CACHE_FILE)
+    finally:
+        if os.path.exists(temp):
+            os.unlink(temp)
     return len(_building)
